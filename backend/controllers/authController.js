@@ -3,6 +3,7 @@ const User = require('../models/User')
 const response = require('../utils/responseHandler');
 const sendOtpToEmail = require('../services/emailService');
 const twilioService = require('../services/twilioService')
+const generateToken = require('../utils/generateToken')
 
 //Step-1 Send OTP
 const sendOtp = async (req, res) => {
@@ -78,8 +79,19 @@ const verifyOtp = async (req, res) => {
       user.isVerified = true;
       await user.save()
     }
-
+    const token = generateToken(user?._id)
+    res.cookie("auth_token", token, {
+      httpOnly: true, //http true mtlb aap apne javascript m is token ko grab nhi kr skte
+      maxAge: 1000 * 60 * 60 * 24 * 365 //maxAge mtlb kb tak apka ye token valid hona chaiye apki cookie m (itne din tk cookies m token store hoga)
+    })
+    return response(res, 200, 'Otp verified successfully', { token, user })
   } catch (error) {
-
+    console.error(error)
+    return response(res, 500, 'Internal server error')
   }
+}
+
+module.exports = {
+  sendOtp,
+  verifyOtp
 }
