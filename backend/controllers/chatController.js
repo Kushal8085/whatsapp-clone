@@ -126,8 +126,8 @@ exports.getMessages = async (req, res) => {
       { $set: { messageStatus: "read" } }
     )
 
-    conversation.unreadCount = 0
-    await conversation.save()
+    conversation.unreadCount = 0  // to be fixed... as unreadCount should be 0 when receiver is userId
+    await conversation.save() // to be fixed...
 
     return response(res, 200, "Message retrived", messages)
   } catch (error) {
